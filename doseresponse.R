@@ -6,7 +6,11 @@ library(dosresmeta)
 library(rms)
 library(readxl)
 library(dbplyr)
+library(MASS)
 
+
+
+## Relative risk
 ## import data
 crc <- read_xlsx("non-linear-crc.xlsx")
 
@@ -44,3 +48,56 @@ plot_dosres <-
     points(df$dose, df$rr,
            cex = scale(df$peryears, center = FALSE), col = "blue")
   }
+
+plot_dosres(fit_crc,crc)
+
+#------consumption
+dta <- read.csv("consumption.csv")
+hist(dta$x, breaks = 20)
+
+
+#compute PAF - bootstrap
+rr_fun <- rcsplineFunction(attr(fit_crc$model[[2]], "parms"), coef(fit_crc))
+PRR <- mean(exp(rr_fun(dta$x)))    #exponent is to convert from log
+#in this computation P is assumed to be equal to 1/n n number of points
+(PRR - 1) / PRR
+
+
+#Method of moments > PAF
+#coeffiencts of Gamma distribution
+m <- mean(dta$x)
+v <- var(dta$x)
+b <- m / v
+a <- m * b
+
+
+args(dgamma)
+## function (x, shape, rate = 1, scale = 1/rate, log = FALSE)
+## NULL
+  int <-integrate(
+    function(x)
+      dgamma(x, a, b) *
+      exp(rr_fun(x)),
+    lower = 0,
+    upper = Inf)
+PRR1 <- int$value
+(PRR1 - 1) / PRR1
+
+
+#fitting Gamma by maximum likelihood
+
+dta2 <- dta$x
+dta2[dta2 == 0] <- 1e-2
+fit_mle <- fitdistr(dta2, "gamma")
+
+  int <-integrate(
+    function(x)
+      dgamma(x, fit_mle$estimate[1], fit_mle$estimate[2]) *
+      exp(rr_fun(x)),
+    lower = 0,
+    upper = Inf)
+PRR2 <- int$value
+(PRR2 - 1) / PRR2
+
+
+

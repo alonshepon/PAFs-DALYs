@@ -1,4 +1,4 @@
-# Fitting distributions to dietary exposure data
+# Fitting distributions to dietary exposure data_alon
 
 **Workshop on Dietary Assessment and Measurement Error**
 

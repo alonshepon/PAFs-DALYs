@@ -5,3 +5,5 @@
 **October 09, 2018**
 
 [Click here](https://rawgit.com/brechtdv/fitdist/master/fitdist.html) to view the slides.
+
+

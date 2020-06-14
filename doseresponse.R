@@ -4,9 +4,11 @@
 library(bd)
 library(dosresmeta)
 library(rms)
+library(readxl)
+library(dbplyr)
 
 ## import data
-crc <- readxl("non-linear-crc.xlsx")
+crc <- read_xlsx("non-linear-crc.xlsx")
 
 ## fit dose-response model
 fit_dosres <-

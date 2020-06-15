@@ -7,6 +7,7 @@ library(rms)
 library(readxl)
 library(dbplyr)
 library(MASS)
+library(ggplot2)
 
 
 
@@ -69,8 +70,8 @@ m <- mean(dta$x)
 v <- var(dta$x)
 b <- m / v
 a <- m * b
-
-
+#
+qqplot(dgamma((dta$x), a, b),(dta$x))
 args(dgamma)
 ## function (x, shape, rate = 1, scale = 1/rate, log = FALSE)
 ## NULL
@@ -89,7 +90,12 @@ PRR1 <- int$value
 dta2 <- dta$x
 dta2[dta2 == 0] <- 1e-2
 fit_mle <- fitdistr(dta2, "gamma")
+gam=data.frame(y=dgamma(dta$x, fit_mle$estimate[1], fit_mle$estimate[2]),x=dta$x);
 
+qqplot(dgamma(dta$x, fit_mle$estimate[1], fit_mle$estimate[2]) ,(dta$x))
+ggplot(data=dta, aes(x=x)) + 
+  #geom_histogram(aes(x=x)) +
+geom_point(data=gam,aes(y=y,x=x))
   int <-integrate(
     function(x)
       dgamma(x, fit_mle$estimate[1], fit_mle$estimate[2]) *

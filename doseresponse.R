@@ -56,7 +56,7 @@ dta <- read.csv("consumption.csv")
 hist(dta$x, breaks = 20)
 
 
-#compute PAF - bootstrap
+#compute PAF - bootstrap method
 rr_fun <- rcsplineFunction(attr(fit_crc$model[[2]], "parms"), coef(fit_crc))
 PRR <- mean(exp(rr_fun(dta$x)))    #exponent is to convert from log
 #in this computation P is assumed to be equal to 1/n n number of points

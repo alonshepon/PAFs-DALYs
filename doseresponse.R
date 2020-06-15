@@ -54,9 +54,9 @@ plot_dosres(fit_crc,crc)
 
 #------consumption
 dta <- read.csv("consumption.csv")
-hist(dta$x, breaks = 20)
-
-
+y1=hist(dta$x, breaks = 200)
+y=density(dta$x,n=length(dta$x),from=min((dta$x)),to=max((dta$x)))
+em=data.frame(y=y$y,x=seq(0,199,1))
 #compute PAF - bootstrap method
 rr_fun <- rcsplineFunction(attr(fit_crc$model[[2]], "parms"), coef(fit_crc))
 PRR <- mean(exp(rr_fun(dta$x)))    #exponent is to convert from log
@@ -71,7 +71,17 @@ v <- var(dta$x)
 b <- m / v
 a <- m * b
 #
-qqplot(dgamma((dta$x), a, b),(dta$x))
+
+##plot
+th_dis=(dgamma(seq(0,199,1), a, b))
+th=data.frame(y=th_dis,x=seq(0,199,1))
+qqplot(em$y,th$y)
+fig1<-ggplot(data=em,aes(x=x,y=y))+
+geom_point(data=em,aes(x=x,y=y))+geom_point(data=th,aes(x=x,y=y,color='red'))
+fig1
+
+
+
 args(dgamma)
 ## function (x, shape, rate = 1, scale = 1/rate, log = FALSE)
 ## NULL
@@ -90,12 +100,15 @@ PRR1 <- int$value
 dta2 <- dta$x
 dta2[dta2 == 0] <- 1e-2
 fit_mle <- fitdistr(dta2, "gamma")
-gam=data.frame(y=dgamma(dta$x, fit_mle$estimate[1], fit_mle$estimate[2]),x=dta$x);
 
-qqplot(dgamma(dta$x, fit_mle$estimate[1], fit_mle$estimate[2]) ,(dta$x))
-ggplot(data=dta, aes(x=x)) + 
-  #geom_histogram(aes(x=x)) +
-geom_point(data=gam,aes(y=y,x=x))
+##plot
+th_dis2=dgamma(seq(0,199,1), fit_mle$estimate[1], fit_mle$estimate[2])
+th2=data.frame(y=th_dis2,x=seq(0,199,1))
+qqplot(em$y,th2$y)
+fig2<-ggplot(data=em,aes(x=x,y=y))+
+  geom_point(data=em,aes(x=x,y=y))+geom_point(data=th2,aes(x=x,y=y,color='red'))
+fig2
+
   int <-integrate(
     function(x)
       dgamma(x, fit_mle$estimate[1], fit_mle$estimate[2]) *

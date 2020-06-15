@@ -64,7 +64,7 @@ PRR <- mean(exp(rr_fun(dta$x)))    #exponent is to convert from log
 
 
 #Method of moments > PAF
-#coeffiencts of Gamma distribution
+#coefficents of Gamma distribution
 m <- mean(dta$x)
 v <- var(dta$x)
 b <- m / v

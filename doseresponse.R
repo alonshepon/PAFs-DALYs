@@ -52,11 +52,13 @@ plot_dosres <-
 
 plot_dosres(fit_crc,crc)
 
-#------consumption
+#------load consumption data
 dta <- read.csv("consumption.csv")
 y1=hist(dta$x, breaks = 200)
 y=density(dta$x,n=length(dta$x),from=min((dta$x)),to=max((dta$x)))
 em=data.frame(y=y$y,x=seq(0,199,1))
+
+
 #compute PAF - bootstrap method
 rr_fun <- rcsplineFunction(attr(fit_crc$model[[2]], "parms"), coef(fit_crc))
 PRR <- mean(exp(rr_fun(dta$x)))    #exponent is to convert from log
@@ -117,6 +119,37 @@ fig2
     upper = Inf)
 PRR2 <- int$value
 (PRR2 - 1) / PRR2
+
+
+# fitting general gamma distribution using maximum likelihhod 
+library(flexsurv)
+
+  fit_mle2 <- fitdistr(dta2,
+    dgengamma,dgengamma
+    "mle",
+    start = function(d)
+      list(
+        mu = mean(d),
+        sigma = sd(d),
+        Q = 0))
+fit_mle2
+int <-
+  integrate(
+    function(x)
+      dgengamma(
+        x,
+        fit_mle2$`estimate`[1],
+        fit_mle2$`estimate`[2],
+        fit_mle2$`estimate`[3]) *
+      exp(rr_fun(x)),
+    lower = 0,
+    upper = Inf)
+PRR <- int$value
+(PRR - 1) / PRR
+
+
+
+
 
 
 

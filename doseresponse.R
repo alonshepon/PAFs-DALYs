@@ -8,7 +8,7 @@ library(readxl)
 library(dbplyr)
 library(MASS)
 library(ggplot2)
-
+library(fitdistrplus)
 
 
 ## Relative risk
@@ -54,9 +54,10 @@ plot_dosres(fit_crc,crc)
 
 #------load consumption data
 dta <- read.csv("consumption.csv")
-y1=hist(dta$x, breaks = 200)
-y=density(dta$x,n=length(dta$x),from=min((dta$x)),to=max((dta$x)))
-em=data.frame(y=y$y,x=seq(0,199,1))
+
+#y1=hist(dta$x, breaks = 200)
+#y=density(dta$x,n=length(dta$x),from=min((dta$x)),to=max((dta$x)))
+#em=data.frame(y=y$y,x=seq(0,199,1))
 
 
 #compute PAF - bootstrap method
@@ -72,17 +73,6 @@ m <- mean(dta$x)
 v <- var(dta$x)
 b <- m / v
 a <- m * b
-#
-
-##plot
-th_dis=(dgamma(seq(0,199,1), a, b))
-th=data.frame(y=th_dis,x=seq(0,199,1))
-qqplot(em$y,th$y)
-fig1<-ggplot(data=em,aes(x=x,y=y))+
-geom_point(data=em,aes(x=x,y=y))+geom_point(data=th,aes(x=x,y=y,color='red'))
-fig1
-
-
 
 args(dgamma)
 ## function (x, shape, rate = 1, scale = 1/rate, log = FALSE)
@@ -102,14 +92,6 @@ PRR1 <- int$value
 dta2 <- dta$x
 dta2[dta2 == 0] <- 1e-2
 fit_mle <- fitdistr(dta2, "gamma")
-
-##plot
-th_dis2=dgamma(seq(0,199,1), fit_mle$estimate[1], fit_mle$estimate[2])
-th2=data.frame(y=th_dis2,x=seq(0,199,1))
-qqplot(em$y,th2$y)
-fig2<-ggplot(data=em,aes(x=x,y=y))+
-  geom_point(data=em,aes(x=x,y=y))+geom_point(data=th2,aes(x=x,y=y,color='red'))
-fig2
 
   int <-integrate(
     function(x)
@@ -147,9 +129,32 @@ int <-
 PRR <- int$value
 (PRR - 1) / PRR
 
+#-----------fitdistplus package
+library(fitdistrplus)
+plotdist(dta$x, histo = TRUE, demp = TRUE)
+descdist(dta$x, boot = 1000)
+fw <- fitdist(dta2, "weibull")
+fg <- fitdist(dta2, "gamma",method = "mse")
+fln <- fitdist(dta2, "lnorm",method="mge")
+op=fitdist(dta2, "gamma", optim.method="Nelder-Mead")
 
+par(mfrow = c(2, 2))
+plot.legend <- c("Weibull", "lognormal", "gamma")
+denscomp(list(fw, fln, fg), legendtext = plot.legend)
+qqcomp(list(fw, fln, fg), legendtext = plot.legend)
+cdfcomp(list(fw, fln, fg), legendtext = plot.legend)
+ppcomp(list(fw, fln, fg), legendtext = plot.legend)
 
+summary(op)
 
+int <-integrate(
+  function(x)
+    dgamma(x, coef(op)[1], coef(op)[2]) *
+    exp(rr_fun(x)),
+  lower = 0,
+  upper = Inf)
+PRR3 <- int$value
+(PRR3 - 1) / PRR3
 
 
 

@@ -86,6 +86,7 @@ args(dgamma)
 PRR1 <- int$value
 (PRR1 - 1) / PRR1
 
+#plot(dgamma(seq(0,200,1), a, b))  #the more the m and v are close the more it resembles as normal symterical curve CV<3;CV>3 lognormal;CV>30 exponential 
 
 #fitting Gamma by maximum likelihood
 
@@ -107,7 +108,7 @@ PRR2 <- int$value
 library(flexsurv)
 
   fit_mle2 <- fitdistr(dta2,
-    dgengamma,dgengamma
+    dgengamma,
     "mle",
     start = function(d)
       list(
@@ -146,6 +147,7 @@ cdfcomp(list(fw, fln, fg), legendtext = plot.legend)
 ppcomp(list(fw, fln, fg), legendtext = plot.legend)
 
 summary(op)
+plot(op)
 
 int <-integrate(
   function(x)

@@ -4,6 +4,9 @@ library("ggplot2")
 library("dplyr")
 library("tidyverse")
 
+#------load consumption data
+dta <- read.csv("consumption.csv")
+leg=100;
 R <- data.frame(matrix(ncol = 3, nrow = 25))
 x <- c("mean", "std", "PAF")
 colnames(df) <- x
@@ -18,12 +21,11 @@ for (val in seq(from = 0.5,to = 3,length.out = 5)){
     b <- m / v
     a <- m * b
     
-    args(dgamma)
-    ## function (x, shape, rate = 1, scale = 1/rate, log = FALSE)
-    ## NULL
+    y<-rgamma(leg, a, b)  #random generate gamma distribution
+    op=fitdist(y, "gamma", optim.method="Nelder-Mead")
     int <-integrate(
       function(x)
-        dgamma(x, a, b) *
+        dgamma(x, coef(op)[1], coef(op)[2]) *
         exp(rr_fun(x)),
       lower = 0,
       upper = Inf)

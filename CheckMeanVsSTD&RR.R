@@ -5,7 +5,7 @@ library("dplyr")
 library("tidyverse")
 
 R <- data.frame(matrix(ncol = 3, nrow = 25))
-x <- c("mean", "std", "risk")
+x <- c("mean", "std", "PAF")
 colnames(df) <- x
 d<-1
 for (val in seq(from = 0.5,to = 3,length.out = 5)){
@@ -29,7 +29,7 @@ for (val in seq(from = 0.5,to = 3,length.out = 5)){
       upper = Inf)
     PRR1 <- int$value
     ri<-(PRR1 - 1) / PRR1
-    R$risk[d]<-ri
+    R$PAF[d]<-ri
     R$mean[d]<-m
     R$std[d]<-v
     d<-d+1}}
@@ -37,9 +37,13 @@ for (val in seq(from = 0.5,to = 3,length.out = 5)){
 ##create colormap
 
 
-p3<-ggplot(R, aes(x = mean, y = std, z=risk)) +
-  geom_raster(aes(fill = risk)) +
+p3<-ggplot(R, aes(x = mean, y = std, z=PAF)) +
+  geom_raster(aes(fill = PAF)) +
   scale_fill_gradient(low="grey90", high="red")+
   geom_contour(aes(colour = stat(level)),show.legend = FALSE,bins=15)
 p3
+
+dta1=rgamma(100, a,b);
+fg_try <- fitdist(dta1, "gamma",method = "mse")
+plot(fg_try)
     

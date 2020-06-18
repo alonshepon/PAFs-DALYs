@@ -51,6 +51,9 @@ plot_dosres <-
   }
 
 plot_dosres(fit_crc,crc)
+dta2 <- dta$x
+dta2[dta2 == 0] <- 1e-2
+
 
 #------load consumption data
 dta <- read.csv("consumption.csv")
@@ -86,12 +89,11 @@ args(dgamma)
 PRR1 <- int$value
 (PRR1 - 1) / PRR1
 
-#plot(dgamma(seq(0,200,1), a, b))  #the more the m and v are close the more it resembles as normal symterical curve CV<3;CV>3 lognormal;CV>30 exponential 
+#plot(dgamma(seq(0,200,1), a, b))  #the more the m and v are close the more it resembles a normal symterical curve CV<3;CV>3 lognormal;CV>30 exponential 
 
 #fitting Gamma by maximum likelihood
 
-dta2 <- dta$x
-dta2[dta2 == 0] <- 1e-2
+
 fit_mle <- fitdistr(dta2, "gamma")
 
   int <-integrate(

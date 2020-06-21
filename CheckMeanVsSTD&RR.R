@@ -4,15 +4,37 @@ library("ggplot2")
 library("dplyr")
 library("tidyverse")
 
+
+## import data
+crc <- read_xlsx("non-linear-crc.xlsx")
+
+## fit dose-response model
+fit_dosres <-
+  function(x) {
+    knots <- quantile(x$dose, c(.1, .5, .9))
+    fit <-
+      dosresmeta(formula = logrr ~ rcs(dose, knots),
+                 type = "ir",
+                 id = factor(study),
+                 se = se,
+                 cases = cases,
+                 n = peryears,
+                 data = x,
+                 method = "fixed")
+  }
+fit_crc <- fit_dosres(crc)
+rr_fun <- rcsplineFunction(attr(fit_crc$model[[2]], "parms"), coef(fit_crc))
+
+
 #------load consumption data
 dta <- read.csv("consumption.csv")
 leg=100;
-R <- data.frame(matrix(ncol = 3, nrow = 25))
+R <- data.frame(matrix(ncol = 3, nrow = 100))
 x <- c("mean", "std", "PAF")
-colnames(df) <- x
+colnames(R) <- x
 d<-1
-for (val in seq(from = 0.5,to = 3,length.out = 5)){
-  for (val1 in seq(from = 0.5,to = 3,length.out = 5)){
+for (val in seq(from = 0.5,to = 2,length.out = 10)){
+  for (val1 in seq(from = 0.5,to = 2,length.out = 10)){
     #browser()
     #Method of moments > PAF
     #coefficents of Gamma distribution
@@ -20,9 +42,12 @@ for (val in seq(from = 0.5,to = 3,length.out = 5)){
     v <- var(dta$x)*val1
     b <- m / v
     a <- m * b
+    #If X is a gamma(α, β) random variable and the shape parameter α is large relative to the scale parameter β, 
+    #then X approximately has a normal random variable with the same mean and variance.
     
-    y<-rgamma(leg, a, b)  #random generate gamma distribution
-    op=fitdist(y, "gamma", optim.method="Nelder-Mead")
+    
+    y<-rgamma(leg, a, b)  #randomly generate gamma distribution
+    op=fitdist(y, "gamma", method = "mme")  #fit curve
     int <-integrate(
       function(x)
         dgamma(x, coef(op)[1], coef(op)[2]) *
@@ -45,7 +70,10 @@ p3<-ggplot(R, aes(x = mean, y = std, z=PAF)) +
   geom_contour(aes(colour = stat(level)),show.legend = FALSE,bins=15)
 p3
 
-dta1=rgamma(100, a,b);
-fg_try <- fitdist(dta1, "gamma",method = "mse")
+
+## single graph
+#coefficents of Gamma distribution
+
+fg_try <- fitdist(dta$x, "gamma",method = "mme")
 plot(fg_try)
     

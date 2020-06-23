@@ -29,12 +29,12 @@ rr_fun <- rcsplineFunction(attr(fit_crc$model[[2]], "parms"), coef(fit_crc))
 #------load consumption data
 dta <- read.csv("consumption.csv")
 leg=100;
-R <- data.frame(matrix(ncol = 3, nrow = 100))
+R <- data.frame(matrix(ncol = 3, nrow = 900))
 x <- c("mean", "std", "PAF")
 colnames(R) <- x
 d<-1
-for (val in seq(from = 0.5,to = 2,length.out = 10)){
-  for (val1 in seq(from = 0.5,to = 2,length.out = 10)){
+for (val in seq(from = 0.5,to = 2,length.out = 30)){
+  for (val1 in seq(from = 0.5,to = 2,length.out = 30)){
     #browser()
     #Method of moments > PAF
     #coefficents of Gamma distribution
